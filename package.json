@@ -2,7 +2,7 @@
     "name": "labelclosing",
     "displayName": "LabelClosing",
     "description": "Showing the start line of a closing bracket as comment after the closing bracket",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "publisher": "finkivscode",
     "engines": {
         "vscode": "^1.25.0"

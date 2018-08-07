@@ -11,7 +11,6 @@ import * as ts from 'typescript';
 
 export function activate(context: vscode.ExtensionContext) {
   // console.log('decorator sample is activated');
-  // var typeScriptLS =  new Harness.TypeScriptLS();
 
   // create a decorator type that we use to decorate small numbers
   const closingLabelDecorationType = vscode.window.createTextEditorDecorationType({});
