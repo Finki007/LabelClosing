@@ -1,4 +1,4 @@
-# LabelClosing README
+# LabelClosing
 
 This is a small extension for JavaScript files. 
 It labels the closing bracket with the opening bracket line. 
