@@ -10,7 +10,7 @@ import * as ts from 'typescript';
 // your extension is activated the very first time the command is executed
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('decorator sample is activated');
+  // console.log('decorator sample is activated');
   // var typeScriptLS =  new Harness.TypeScriptLS();
 
   // create a decorator type that we use to decorate small numbers
@@ -74,10 +74,6 @@ export function activate(context: vscode.ExtensionContext) {
       ];
 
       if (supportedElements.includes(kind)) {
-
-        console.log(ts.SyntaxKind[node.kind] + " [pos: " + node.pos + ";end: " + node.end + "]")
-        console.log("\t" + node.getFullText())
-
         if (node.parent && ts.SyntaxKind[node.parent.kind].includes("JsxAttribute") && (activeEditor2.document.positionAt(node.end).line - activeEditor2.document.positionAt(node.pos).line) < 2)
           return;
 
