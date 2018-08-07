@@ -2,14 +2,14 @@
     "name": "labelclosing",
     "displayName": "LabelClosing",
     "description": "Showing the start line of a closing bracket as comment after the closing bracket",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "publisher": "finkivscode",
     "engines": {
         "vscode": "^1.25.0"
     },
     "repository": {
-      "type": "git",
-      "url": "https://github.com/Finki007/LabelClosing.git"
+        "type": "git",
+        "url": "https://github.com/Finki007/LabelClosing.git"
     },
     "categories": [
         "Other"
@@ -20,8 +20,7 @@
         "onLanguage:typescript"
     ],
     "main": "./out/extension",
-    "contributes": {
-    },
+    "contributes": {},
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
@@ -36,6 +35,5 @@
         "@types/node": "^7.0.43",
         "@types/mocha": "^2.2.42"
     },
-    "dependencies": {
-    }
+    "dependencies": {}
 }
