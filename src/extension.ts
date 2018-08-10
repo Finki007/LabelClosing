@@ -73,7 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
       ];
 
       if (supportedElements.includes(kind)) {
-        if (node.parent && ts.SyntaxKind[node.parent.kind].includes("JsxAttribute") && (activeEditor2.document.positionAt(node.end).line - activeEditor2.document.positionAt(node.pos).line) < 2)
+        if (activeEditor2.document.positionAt(node.end).line - activeEditor2.document.positionAt(node.pos).line < 1)
           return;
 
         var endPos = activeEditor2.document.positionAt(node.end);
