@@ -20,7 +20,26 @@
         "onLanguage:typescript"
     ],
     "main": "./out/extension",
-    "contributes": {},
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Dart Configuration",
+            "properties": {
+                "labelClosing.enableJSX": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to show annotations against constructor, method invocations and lists that span multiple lines.",
+                    "scope": "window"
+                },
+                "labelClosing.amountOfLines": {
+                    "type": "number",
+                    "default": 2,
+                    "description": "Whether to show annotations against constructor, method invocations and lists that span multiple lines.",
+                    "scope": "window"
+                }
+            }
+        }
+    },
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
