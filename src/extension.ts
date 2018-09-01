@@ -3,6 +3,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as ts from 'typescript';
+import { config } from './config';
 
 // import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
@@ -46,6 +47,9 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
+    const enableJSX: boolean = config.enableJSX ? true : false;
+    const amountOfLines: number = config.amountOfLines ? config.amountOfLines : 1;
+
     let sourceCode = activeEditor.document.getText();
     let sourceFile = ts.createSourceFile(activeEditor.document.fileName, sourceCode, ts.ScriptTarget.Latest, true, undefined);
 
@@ -60,20 +64,24 @@ export function activate(context: vscode.ExtensionContext) {
     function recur(node: ts.Node) {
 
       let kind = ts.SyntaxKind[node.kind];
-      
+
       //node types/kinds which are supported
       let supportedElements = [
         "ArrayLiteralExpression",
         "Block",
-        "ObjectLiteralExpression", 
-        "JsxElement",
+        "ObjectLiteralExpression",
         "ParenthesizedExpression",
-        "ClassDeclaration",
-        "JsxAttribute"
+        "ClassDeclaration"
       ];
 
+      if (enableJSX)
+        supportedElements.push(
+          "JsxAttribute",
+          "JsxElement"
+        );
+
       if (supportedElements.includes(kind)) {
-        if (activeEditor2.document.positionAt(node.end).line - activeEditor2.document.positionAt(node.pos).line < 1)
+        if (activeEditor2.document.positionAt(node.end).line - activeEditor2.document.positionAt(node.pos).line < amountOfLines)
           return;
 
         var endPos = activeEditor2.document.positionAt(node.end);
