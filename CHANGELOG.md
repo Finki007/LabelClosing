@@ -1,7 +1,14 @@
 # Change Log
-All notable changes to the "labelclosing" extension will be documented in this file.
+## Version 0.4.0
+added:
+- settings for 
+  - disable tooltip
+  - change font- and backgroundcolor
+  - change the min lines for comment
+  - change the label begin sequence (seperatorChar)
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+in dev: 
+- JSX Elements
 
 ## [Unreleased]
 - Initial release

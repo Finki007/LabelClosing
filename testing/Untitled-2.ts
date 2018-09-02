@@ -4,6 +4,7 @@
     //hey
     let params = {
 
+
     };
     s3.upload(params, function (err, data) {
         if (err) {

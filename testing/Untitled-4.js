@@ -14,7 +14,9 @@ class com extends Componet {
               style={{ 
                 flex: 1
               }}
-              source={{ html: item.text }}
+              source={{ 
+                html: item.text 
+              }}
             />
           </View>
         }
