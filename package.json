@@ -2,7 +2,7 @@
     "name": "labelclosing",
     "displayName": "LabelClosing",
     "description": "Showing the start line of a closing bracket as comment after the closing bracket",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "publisher": "finkivscode",
     "engines": {
         "vscode": "^1.25.0"
@@ -19,22 +19,58 @@
         "onLanguage:javascript",
         "onLanguage:typescript"
     ],
-    "main": "./out/extension",
+    "main": "./out/src/extension",
     "contributes": {
         "configuration": {
             "type": "object",
-            "title": "Dart Configuration",
+            "title": "Label Closing Config",
             "properties": {
                 "labelClosing.enableJSX": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Whether to show annotations against constructor, method invocations and lists that span multiple lines.",
+                    "description": "currently not functional, in dev",
                     "scope": "window"
                 },
                 "labelClosing.amountOfLines": {
                     "type": "number",
-                    "default": 2,
-                    "description": "Whether to show annotations against constructor, method invocations and lists that span multiple lines.",
+                    "default": 3,
+                    "description": "min. lines the \"block\" must has to get labeled",
+                    "scope": "window"
+                },
+                "labelClosing.showToolTip": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "shall the hoverover the label tooltip pop up?",
+                    "scope": "window"
+                },
+                "labelClosing.seperatorChar": {
+                    "type": "string",
+                    "default": " // ",
+                    "description": "the string sequence that shall be displayed befor the label.",
+                    "scope": "window"
+                },
+                "labelClosing.lightFontColor": {
+                    "type": "string",
+                    "default": "#cdcdcd",
+                    "description": "fontcolor of the label in light theme",
+                    "scope": "window"
+                },
+                "labelClosing.lightBackgroundColor": {
+                    "type": "string",
+                    "default": "#aaaaaa00",
+                    "description": "backgroundcolor of the label in light theme",
+                    "scope": "window"
+                },
+                "labelClosing.darkFontColor": {
+                    "type": "string",
+                    "default": "#777",
+                    "description": "fontcolor of the label in dark theme",
+                    "scope": "window"
+                },
+                "labelClosing.darkBackgroundColor": {
+                    "type": "string",
+                    "default": "#aaaaaa00",
+                    "description": "background of the label in dark theme",
                     "scope": "window"
                 }
             }
