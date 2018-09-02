@@ -1,96 +1,102 @@
 {
-    "name": "labelclosing",
-    "displayName": "LabelClosing",
-    "description": "Showing the start line of a closing bracket as comment after the closing bracket",
-    "version": "0.4.0",
-    "publisher": "finkivscode",
-    "engines": {
-        "vscode": "^1.25.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Finki007/LabelClosing.git"
-    },
-    "categories": [
-        "Other"
-    ],
-    "activationEvents": [
-        "onLanguage:json",
-        "onLanguage:javascript",
-        "onLanguage:typescript"
-    ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "configuration": {
-            "type": "object",
-            "title": "Label Closing Config",
-            "properties": {
-                "labelClosing.enableJSX": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "currently not functional, in dev",
-                    "scope": "window"
-                },
-                "labelClosing.amountOfLines": {
-                    "type": "number",
-                    "default": 3,
-                    "description": "min. lines the \"block\" must has to get labeled",
-                    "scope": "window"
-                },
-                "labelClosing.showToolTip": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "shall the hoverover the label tooltip pop up?",
-                    "scope": "window"
-                },
-                "labelClosing.seperatorChar": {
-                    "type": "string",
-                    "default": " // ",
-                    "description": "the string sequence that shall be displayed befor the label.",
-                    "scope": "window"
-                },
-                "labelClosing.lightFontColor": {
-                    "type": "string",
-                    "default": "#cdcdcd",
-                    "description": "fontcolor of the label in light theme",
-                    "scope": "window"
-                },
-                "labelClosing.lightBackgroundColor": {
-                    "type": "string",
-                    "default": "#aaaaaa00",
-                    "description": "backgroundcolor of the label in light theme",
-                    "scope": "window"
-                },
-                "labelClosing.darkFontColor": {
-                    "type": "string",
-                    "default": "#777",
-                    "description": "fontcolor of the label in dark theme",
-                    "scope": "window"
-                },
-                "labelClosing.darkBackgroundColor": {
-                    "type": "string",
-                    "default": "#aaaaaa00",
-                    "description": "background of the label in dark theme",
-                    "scope": "window"
-                }
-            }
+  "name": "labelclosing",
+  "displayName": "LabelClosing",
+  "description": "Showing the start line of a closing bracket as comment after the closing bracket",
+  "version": "0.4.0",
+  "publisher": "finkivscode",
+  "bugs": {
+    "url": "https://github.com/Finki007/LabelClosing/issues"
+  },
+  "homepage": "https://github.com/Finki007/LabelClosing#readme",
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "vscode": "^1.25.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Finki007/LabelClosing.git"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:json",
+    "onLanguage:javascript",
+    "onLanguage:typescript"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Label Closing Config",
+      "properties": {
+        "labelClosing.enableJSX": {
+          "type": "boolean",
+          "default": true,
+          "description": "currently not functional, in dev",
+          "scope": "window"
+        },
+        "labelClosing.amountOfLines": {
+          "type": "number",
+          "default": 3,
+          "description": "min. lines the \"block\" must has to get labeled",
+          "scope": "window"
+        },
+        "labelClosing.showToolTip": {
+          "type": "boolean",
+          "default": true,
+          "description": "shall the hoverover the label tooltip pop up?",
+          "scope": "window"
+        },
+        "labelClosing.seperatorChar": {
+          "type": "string",
+          "default": " // ",
+          "description": "the string sequence that shall be displayed befor the label.",
+          "scope": "window"
+        },
+        "labelClosing.lightFontColor": {
+          "type": "string",
+          "default": "#cdcdcd",
+          "description": "fontcolor of the label in light theme",
+          "scope": "window"
+        },
+        "labelClosing.lightBackgroundColor": {
+          "type": "string",
+          "default": "#aaaaaa00",
+          "description": "backgroundcolor of the label in light theme",
+          "scope": "window"
+        },
+        "labelClosing.darkFontColor": {
+          "type": "string",
+          "default": "#777",
+          "description": "fontcolor of the label in dark theme",
+          "scope": "window"
+        },
+        "labelClosing.darkBackgroundColor": {
+          "type": "string",
+          "default": "#aaaaaa00",
+          "description": "background of the label in dark theme",
+          "scope": "window"
         }
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
-    },
-    "devDependencies": {
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^7.0.43",
-        "tslint": "^5.8.0",
-        "typescript": "^2.9.2",
-        "vscode": "^1.1.6"
-    },
-    "dependencies": {
-        "typescript": "^2.9.2"
+      }
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^7.0.43",
+    "tslint": "^5.8.0",
+    "typescript": "^2.9.2",
+    "vscode": "^1.1.6"
+  },
+  "dependencies": {
+    "typescript": "^2.9.2"
+  }
 }
