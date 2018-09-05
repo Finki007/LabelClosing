@@ -25,7 +25,7 @@
     "onLanguage:javascript",
     "onLanguage:typescript"
   ],
-  "main": "./out/src/extension",
+  "main": "./out/extension",
   "contributes": {
     "configuration": {
       "type": "object",
@@ -47,6 +47,18 @@
           "type": "boolean",
           "default": true,
           "description": "shall the hoverover the label tooltip pop up?",
+          "scope": "window"
+        },
+        "labelClosing.showToolTipMin": {
+          "type": "number",
+          "default": 4,
+          "description": "the min. amount of lines a block must have to trigger the tooltip.",
+          "scope": "window"
+        },
+        "labelClosing.showToolTipLines": {
+          "type": "number",
+          "default": 4,
+          "description": "the aoumnt of lines that shall be max. displayed in the tooltip.",
           "scope": "window"
         },
         "labelClosing.seperatorChar": {

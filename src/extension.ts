@@ -20,6 +20,8 @@ export function activate(context: vscode.ExtensionContext) {
   const defaultSettings = {
     enableJSX: true,
     showToolTip: true,
+    showToolTipMin: 4,
+    showToolTipLines: 4,
     amountOfLines: 1,
     seperatorChar: " // ",
     lightFontColor: "#",
@@ -28,8 +30,10 @@ export function activate(context: vscode.ExtensionContext) {
     darkBackgroundColor: "#aaaaaa00",
   };
 
-  var enableJSX: boolean = config.enableJSX ? true : defaultSettings.enableJSX;
-  var showToolTip: boolean = config.showToolTip ? true : defaultSettings.showToolTip;
+  var enableJSX: boolean = config.enableJSX ? config.enableJSX : defaultSettings.enableJSX;
+  var showToolTip: boolean = config.showToolTip ? config.showToolTip : defaultSettings.showToolTip;
+  var showToolTipMin: number = config.showToolTipMin ? config.showToolTipMin : defaultSettings.showToolTipMin;
+  var showToolTipLines: number = config.showToolTipLines ? config.showToolTipLines : defaultSettings.showToolTipLines;
   var amountOfLines: number = config.amountOfLines ? config.amountOfLines : defaultSettings.amountOfLines;
   var seperatorChar: string = config.seperatorChar ? config.seperatorChar : defaultSettings.seperatorChar;
   var lightFontColor: string = config.lightFontColor ? config.lightFontColor : defaultSettings.lightFontColor;
@@ -42,6 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
     triggerUpdateDecorations();
   }
 
+  //onChange Setting
   vscode.workspace.onDidChangeConfiguration(event => {
     let isChanged = (key: string) =>
       event.affectsConfiguration(key);
@@ -54,6 +59,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
     if (isChanged("labelClosing.showToolTip")) {
       showToolTip = config.showToolTip ? config.showToolTip : defaultSettings.showToolTip;
+    }
+    if (isChanged("labelClosing.showToolTipMin")) {
+      showToolTipMin = config.showToolTipMin ? config.showToolTipMin : defaultSettings.showToolTipMin;
+    }
+    if (isChanged("labelClosing.showToolTipLines")) {
+      showToolTipLines = config.showToolTipLines ? config.showToolTipLines : defaultSettings.showToolTipLines;
     }
     if (isChanged("labelClosing.seperatorChar")) {
       seperatorChar = config.seperatorChar ? config.seperatorChar : defaultSettings.seperatorChar;
@@ -143,10 +154,11 @@ export function activate(context: vscode.ExtensionContext) {
         var endPos = activeEditor2.document.positionAt(node.end);
         var startPos =
           specialStart !== -1 ?
-          activeEditor2.document.positionAt(specialStart) :
+            activeEditor2.document.positionAt(specialStart) :
             activeEditor2.document.positionAt(node.pos);
+        var lines = endPos.line - startPos.line;
 
-        if (endPos.line - startPos.line < amountOfLines) {
+        if (lines < amountOfLines) {
           return;
         }
 
@@ -164,20 +176,22 @@ export function activate(context: vscode.ExtensionContext) {
         let hoverText = "```js\n";
         let offset = 0;
 
-        for (let item = startPos.line;
-          item < activeEditor2.document.lineCount && item < startPos.line + 4 && item <= endPos.line;
-          item++
-        ) {
-          let text = activeEditor2.document.lineAt(item).text;
-          if (item === startPos.line) {
-            const reg = /^\s\s+/g;
-            let ma = reg.exec(text);
-            if (ma && ma.length > 0) {
-              offset = ma[0].length;
+        if (lines >= showToolTipMin) {
+          for (let item = startPos.line;
+            item < activeEditor2.document.lineCount && item < startPos.line + showToolTipLines && item <= endPos.line;
+            item++
+          ) {
+            let text = activeEditor2.document.lineAt(item).text;
+            if (item === startPos.line) {
+              const reg = /^\s\s+/g;
+              let ma = reg.exec(text);
+              if (ma && ma.length > 0) {
+                offset = ma[0].length;
+              }
             }
+            text = text.substring(offset);
+            hoverText += text + "\n";
           }
-          text = text.substring(offset);
-          hoverText += text + "\n";
         }
 
         hoverText += "\n```";
@@ -200,7 +214,7 @@ export function activate(context: vscode.ExtensionContext) {
               }
             }
           },
-          hoverMessage: showToolTip ? new vscode.MarkdownString(hoverText) : ""
+          hoverMessage: showToolTip && lines >= showToolTipMin ? new vscode.MarkdownString(hoverText) : ""
         };
         closingLabel.push(decorationEnd);
       }

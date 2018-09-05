@@ -27,6 +27,14 @@ class Config {
 		return this.getConfig("showToolTip"); 
 	}
   
+	get showToolTipMin(): number | undefined { 
+		return this.getConfig("showToolTipMin"); 
+	}
+  
+	get showToolTipLines(): number | undefined { 
+		return this.getConfig("showToolTipLines"); 
+	}
+  
 	get amountOfLines(): number | undefined { 
 		return this.getConfig("amountOfLines"); 
 	}
