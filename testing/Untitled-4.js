@@ -1,6 +1,6 @@
 import {
   Hey
-} from '..'
+} from '..';
 
 class com extends Componet {
   render() {
@@ -19,6 +19,12 @@ class com extends Componet {
               }}
             />
           </View>
+        }
+        style={{
+
+        }}
+        onChange={
+          
         }
       >
       </Header>

@@ -16,30 +16,16 @@ export function activate(context: vscode.ExtensionContext) {
   // create a decorator type that we use to decorate small numbers
   const closingLabelDecorationType = vscode.window.createTextEditorDecorationType({});
 
-  //Settings
-  const defaultSettings = {
-    enableJSX: true,
-    showToolTip: true,
-    showToolTipMin: 4,
-    showToolTipLines: 4,
-    amountOfLines: 1,
-    seperatorChar: " // ",
-    lightFontColor: "#",
-    lightBackgroundColor: "#aaaaaa00",
-    darkFontColor: "#777",
-    darkBackgroundColor: "#aaaaaa00",
-  };
-
-  var enableJSX: boolean = config.enableJSX ? config.enableJSX : defaultSettings.enableJSX;
-  var showToolTip: boolean = config.showToolTip ? config.showToolTip : defaultSettings.showToolTip;
-  var showToolTipMin: number = config.showToolTipMin ? config.showToolTipMin : defaultSettings.showToolTipMin;
-  var showToolTipLines: number = config.showToolTipLines ? config.showToolTipLines : defaultSettings.showToolTipLines;
-  var amountOfLines: number = config.amountOfLines ? config.amountOfLines : defaultSettings.amountOfLines;
-  var seperatorChar: string = config.seperatorChar ? config.seperatorChar : defaultSettings.seperatorChar;
-  var lightFontColor: string = config.lightFontColor ? config.lightFontColor : defaultSettings.lightFontColor;
-  var lightBackgroundColor: string = config.lightBackgroundColor ? config.lightBackgroundColor : defaultSettings.lightBackgroundColor;
-  var darkFontColor: string = config.darkFontColor ? config.darkFontColor : defaultSettings.darkFontColor;
-  var darkBackgroundColor: string = config.darkBackgroundColor ? config.darkBackgroundColor : defaultSettings.darkBackgroundColor;
+  var enableJSX: boolean = config.enableJSX;
+  var showToolTip: boolean = config.showToolTip;
+  var showToolTipMin: number = config.showToolTipMin;
+  var showToolTipLines: number = config.showToolTipLines;
+  var amountOfLines: number = config.amountOfLines;
+  var seperatorChar: string = config.seperatorChar;
+  var lightFontColor: string = config.lightFontColor;
+  var lightBackgroundColor: string = config.lightBackgroundColor;
+  var darkFontColor: string = config.darkFontColor;
+  var darkBackgroundColor: string = config.darkBackgroundColor;
 
   let activeEditor = vscode.window.activeTextEditor;
   if (activeEditor) {
@@ -52,34 +38,34 @@ export function activate(context: vscode.ExtensionContext) {
       event.affectsConfiguration(key);
 
     if (isChanged("labelClosing.enableJSX")) {
-      enableJSX = config.enableJSX ? true : defaultSettings.enableJSX;
+      enableJSX = config.enableJSX;
     }
     if (isChanged("labelClosing.amountOfLines")) {
-      amountOfLines = config.amountOfLines ? config.amountOfLines : defaultSettings.amountOfLines;
+      amountOfLines = config.amountOfLines;
     }
     if (isChanged("labelClosing.showToolTip")) {
-      showToolTip = config.showToolTip ? config.showToolTip : defaultSettings.showToolTip;
+      showToolTip = config.showToolTip;
     }
     if (isChanged("labelClosing.showToolTipMin")) {
-      showToolTipMin = config.showToolTipMin ? config.showToolTipMin : defaultSettings.showToolTipMin;
+      showToolTipMin = config.showToolTipMin;
     }
     if (isChanged("labelClosing.showToolTipLines")) {
-      showToolTipLines = config.showToolTipLines ? config.showToolTipLines : defaultSettings.showToolTipLines;
+      showToolTipLines = config.showToolTipLines;
     }
     if (isChanged("labelClosing.seperatorChar")) {
-      seperatorChar = config.seperatorChar ? config.seperatorChar : defaultSettings.seperatorChar;
+      seperatorChar = config.seperatorChar;
     }
     if (isChanged("labelClosing.lightFontColor")) {
-      lightFontColor = config.lightFontColor ? config.lightFontColor : defaultSettings.lightFontColor;
+      lightFontColor = config.lightFontColor;
     }
     if (isChanged("labelClosing.lightBackgroundColor")) {
-      lightBackgroundColor = config.lightBackgroundColor ? config.lightBackgroundColor : defaultSettings.lightBackgroundColor;
+      lightBackgroundColor = config.lightBackgroundColor;
     }
     if (isChanged("labelClosing.darkFontColor")) {
-      darkFontColor = config.darkFontColor ? config.darkFontColor : defaultSettings.darkFontColor;
+      darkFontColor = config.darkFontColor;
     }
     if (isChanged("labelClosing.darkBackgroundColor")) {
-      darkBackgroundColor = config.darkBackgroundColor ? config.darkBackgroundColor : defaultSettings.darkBackgroundColor;
+      darkBackgroundColor = config.darkBackgroundColor;
     }
   });
 
@@ -134,21 +120,31 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (enableJSX) {
         supportedElements.push(
-          "JsxAttribute"
-          // "JsxElement"
+          "JsxAttribute",
+          "JsxElement"
         );
       }
 
       if (supportedElements.includes(kind)) {
         var specialStart: number = -1;
+        let specialText: string = "";
+        let useSpecialText: boolean = false;
 
         if (node.hasOwnProperty("name")) {
           var namedDec: any = (node as ts.NamedDeclaration);
           specialStart = node.pos === (namedDec.name).pos ? (namedDec.name).end : (namedDec.name).pos;
         }
-        if (node.hasOwnProperty("openingElement")) {
+        if (enableJSX && node.hasOwnProperty("openingElement")) {
           var jsx: any = (node as ts.JsxElement);
           specialStart = (jsx.openingElement.attributes).pos;
+          var tagName = "<" + (jsx.openingElement.tagName).text;
+          var attributesText = "";
+          for (var props of (jsx.openingElement.attributes).properties) {
+            var named: any = (props as ts.NamedDeclaration);
+            attributesText += (attributesText === "" ? " " : ", ") + (named.name).text + "=[...]";
+          }
+          specialText = tagName + attributesText + ">";
+          useSpecialText = true;
         }
 
         var endPos = activeEditor2.document.positionAt(node.end);
@@ -163,13 +159,14 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         let textLine = startPos.line;
+        let text = useSpecialText ? specialText : activeEditor2.document.lineAt(textLine).text.trim();
 
-        var labelText = seperatorChar + activeEditor2.document.lineAt(textLine).text.trim();
+        var labelText = seperatorChar + text;
 
         if (startPos.line - 1 >= 0) {
           var matches = /\/\/(.*)/g.exec(activeEditor2.document.lineAt(startPos.line - 1).text);
           if (matches && matches.length > 0) {
-            labelText = seperatorChar + matches[1] + " - " + activeEditor2.document.lineAt(textLine).text.trim();
+            labelText = seperatorChar + matches[1] + " - " + text;
           }
         }
 
