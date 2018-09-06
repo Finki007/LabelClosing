@@ -1,14 +1,18 @@
 {
-    //Hallo
-    s3.upload(params, function (err, data) {
+    //Hey
+    object.function(para1, function (err, data) {
         if (err) {
             console.log(err);
         } else {
-            console.log("File uploaded to s3 Bucket");
+            console.log(data);
+        }
+        for (var i in array) {
+
         }
         json = {
-            Hallo: "wie"
+            hey: "wie"
         }
+        //comment
         how_are_you = {
 
         }
