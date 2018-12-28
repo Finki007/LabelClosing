@@ -4,7 +4,11 @@
 [x] Settings (done in 0.4.0/1)
 [x] JSX labeling (done in 0.4.2)
 
-### 0.4.2 (latest)
+### 0.4.4 (latest)
+added:
+- only label when comment is before (just lokking for single line comment) [labelClosing.onlyCommentLabel]
+
+### 0.4.2
 added:
 - JSX Elements Support
   - closing Element get label with the tag name and a list of the attributes like this: <Header left=[...], style=[...], onChange=[...]>

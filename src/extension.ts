@@ -17,6 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
   const closingLabelDecorationType = vscode.window.createTextEditorDecorationType({});
 
   var enableJSX: boolean = config.enableJSX;
+  var onlyCommentLabel: boolean = config.onlyCommentLabel;
   var showToolTip: boolean = config.showToolTip;
   var showToolTipMin: number = config.showToolTipMin;
   var showToolTipLines: number = config.showToolTipLines;
@@ -38,7 +39,10 @@ export function activate(context: vscode.ExtensionContext) {
       event.affectsConfiguration(key);
 
     if (isChanged("labelClosing.enableJSX")) {
-      enableJSX = config.enableJSX;
+      enableJSX = config.onlyCommentLabel;
+    }
+    if (isChanged("labelClosing.onlyCommentLabel")) {
+      onlyCommentLabel = config.onlyCommentLabel;
     }
     if (isChanged("labelClosing.amountOfLines")) {
       amountOfLines = config.amountOfLines;
@@ -129,6 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
         var specialStart: number = -1;
         let specialText: string = "";
         let useSpecialText: boolean = false;
+        let useCommentText: boolean = false;
 
         if (node.hasOwnProperty("name")) {
           var namedDec: any = (node as ts.NamedDeclaration);
@@ -161,15 +166,26 @@ export function activate(context: vscode.ExtensionContext) {
         let textLine = startPos.line;
         let text = useSpecialText ? specialText : activeEditor2.document.lineAt(textLine).text.trim();
 
-        var labelText = seperatorChar + text;
+        var commentText = seperatorChar + text;
 
         if (startPos.line - 1 >= 0) {
           var matches = /\/\/(.*)/g.exec(activeEditor2.document.lineAt(startPos.line - 1).text);
           if (matches && matches.length > 0) {
-            labelText = seperatorChar + matches[1] + " - " + text;
+            commentText = seperatorChar + matches[1] + (!onlyCommentLabel ? " - " + text : "");
+            useCommentText = true;
+          }
+        } else {
+          var matches = /\/\/(.*)/g.exec(activeEditor2.document.lineAt(startPos.line).text);
+          if (matches && matches.length > 0) {
+            commentText = seperatorChar + matches[1] + (!onlyCommentLabel ? " - " + text : "");
+            useCommentText = true;
           }
         }
 
+        var labelText = onlyCommentLabel ? 
+            (useCommentText ? commentText : "") :
+            commentText;
+          
         let hoverText = "```js\n";
         let offset = 0;
 

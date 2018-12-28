@@ -8,7 +8,8 @@ class Config {
 
   //Settings
   private defaultSettings = {
-    enableJSX: true,
+		enableJSX: true,
+		onlyCommentLabel: false,
     showToolTip: true,
     showToolTipMin: 4,
     showToolTipLines: 4,
@@ -41,6 +42,11 @@ class Config {
 	get showToolTip(): boolean { 
 		const showToolTip = this.getConfig("showToolTip"); 
 		return showToolTip !== undefined ? Boolean(showToolTip) : this.defaultSettings.showToolTip;
+	}
+  
+	get onlyCommentLabel(): boolean { 
+		const onlyCommentLabel = this.getConfig("onlyCommentLabel"); 
+		return onlyCommentLabel !== undefined ? Boolean(onlyCommentLabel) : this.defaultSettings.onlyCommentLabel;
 	}
   
 	get showToolTipMin(): number {
