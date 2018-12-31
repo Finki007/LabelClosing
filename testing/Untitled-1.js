@@ -17,6 +17,11 @@
 
         }
     });
+
+    /*
+    ssadadsds
+    asdasdasd
+    */
     
     for (let item = startPos.line;
         item < activeEditor2.document.lineCount && item < startPos.line + 4 && item <= endPos.line;

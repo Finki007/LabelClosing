@@ -4,6 +4,7 @@
 import * as vscode from 'vscode';
 import * as ts from 'typescript';
 import { config } from './config';
+import { parse } from './compil';
 
 // import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
@@ -102,137 +103,216 @@ export function activate(context: vscode.ExtensionContext) {
     let sourceCode = activeEditor.document.getText();
     let sourceFile = ts.createSourceFile(activeEditor.document.fileName, sourceCode, ts.ScriptTarget.Latest, true, undefined);
 
+    var languages = ["javascript", "typescript", "jsx"];
+    var language = activeEditor.document.languageId;
+
     const closingLabel: vscode.DecorationOptions[] = [];
 
     let activeEditor2 = activeEditor;
 
-    sourceFile.forEachChild(node => {
-      recur(node);
-    });
+    if (!languages.includes(language)) {
+      var ast = parse(sourceCode);
+      function rec(node: any) {
+        if (node["object"]) {
+          //console.log(node, node["object"]["type"] + ": " + node["object"]["content"]);
+          if (["block", "squ"].includes(node["object"]["type"])) {
+            {
+              var nodeObject = node["object"];
+              var nodeEnd = nodeObject["end"];
+              var nodeBegin = nodeObject["begin"];
+              var endPos = new vscode.Position(nodeEnd["line"], nodeEnd["column"]);
+              var startPos = new vscode.Position(nodeBegin["line"], nodeBegin["column"]);
+              var labelText = nodeObject["content"];
 
-    function recur(node: ts.Node) {
-      let kind = ts.SyntaxKind[node.kind];
+              var lines = endPos.line - startPos.line;
+              let hoverText = "```js\n";
+              let offset = 0;
 
-      //node types/kinds which are supported
-      let supportedElements = [
-        "ArrayLiteralExpression",
-        "Block",
-        "ObjectLiteralExpression",
-        "ParenthesizedExpression",
-        "ClassDeclaration"
-      ];
+              if (lines < amountOfLines) {
+                return;
+              }
 
-      if (enableJSX) {
-        supportedElements.push(
-          "JsxAttribute",
-          "JsxElement"
-        );
+              if (lines >= showToolTipMin) {
+                for (let item = startPos.line;
+                  item < activeEditor2.document.lineCount && item < startPos.line + showToolTipLines && item <= endPos.line;
+                  item++
+                ) {
+                  let text = activeEditor2.document.lineAt(item).text;
+                  if (item === startPos.line) {
+                    const reg = /^\s\s+/g;
+                    let ma = reg.exec(text);
+                    if (ma && ma.length > 0) {
+                      offset = ma[0].length;
+                    }
+                  }
+                  text = text.substring(offset);
+                  hoverText += text + "\n";
+                }
+              }
+              hoverText += "\n```";
+
+              const decorationEnd = {
+                range: new vscode.Range(endPos, activeEditor2.document.lineAt(nodeEnd.line).range.end),
+                renderOptions: {
+                  dark: {
+                    after: {
+                      contentText: " " + seperatorChar + labelText,
+                      color: darkFontColor,
+                      backgroundColor: darkBackgroundColor
+                    }
+                  },
+                  light: {
+                    after: {
+                      contentText: " " + seperatorChar + labelText,
+                      color: lightFontColor,
+                      backgroundColor: lightBackgroundColor
+                    }
+                  }
+                },
+                hoverMessage: showToolTip && lines >= showToolTipMin ? new vscode.MarkdownString(hoverText) : ""
+              };
+              closingLabel.push(decorationEnd);
+            }
+          }
+          if (node["object"]["inner"]) {
+            rec(node["object"]["inner"]);
+          }
+        }
+        if (node["next"]) {
+          rec(node["next"]);
+        }
       }
+      rec(ast);
+    } else {
+      sourceFile.forEachChild(node => {
+        recur(node);
+      });
+      function recur(node: ts.Node) {
+        let kind = ts.SyntaxKind[node.kind];
 
-      if (supportedElements.includes(kind)) {
-        var specialStart: number = -1;
-        let specialText: string = "";
-        let useSpecialText: boolean = false;
-        let useCommentText: boolean = false;
+        //node types/kinds which are supported
+        let supportedElements = [
+          "ArrayLiteralExpression",
+          "Block",
+          "ObjectLiteralExpression",
+          "ParenthesizedExpression",
+          "ClassDeclaration"
+        ];
 
-        if (node.hasOwnProperty("name")) {
-          var namedDec: any = (node as ts.NamedDeclaration);
-          specialStart = node.pos === (namedDec.name).pos ? (namedDec.name).end : (namedDec.name).pos;
+        if (enableJSX) {
+          supportedElements.push(
+            "JsxAttribute",
+            "JsxElement"
+          );
         }
-        if (enableJSX && node.hasOwnProperty("openingElement")) {
-          var jsx: any = (node as ts.JsxElement);
-          specialStart = (jsx.openingElement.attributes).pos;
-          var tagName = "<" + (jsx.openingElement.tagName).text;
-          var attributesText = "";
-          for (var props of (jsx.openingElement.attributes).properties) {
-            var named: any = (props as ts.NamedDeclaration);
-            attributesText += (attributesText === "" ? " " : ", ") + (named.name).text + "=[...]";
+
+        if (supportedElements.includes(kind)) {
+          var specialStart: number = -1;
+          let specialText: string = "";
+          let useSpecialText: boolean = false;
+          let useCommentText: boolean = false;
+
+          if (node.hasOwnProperty("name")) {
+            var namedDec: any = (node as ts.NamedDeclaration);
+            specialStart = node.pos === (namedDec.name).pos ? (namedDec.name).end : (namedDec.name).pos;
           }
-          specialText = tagName + attributesText + ">";
-          useSpecialText = true;
-        }
-
-        var endPos = activeEditor2.document.positionAt(node.end);
-        var startPos =
-          specialStart !== -1 ?
-            activeEditor2.document.positionAt(specialStart) :
-            activeEditor2.document.positionAt(node.pos);
-        var lines = endPos.line - startPos.line;
-
-        if (lines < amountOfLines) {
-          return;
-        }
-
-        let textLine = startPos.line;
-        let text = useSpecialText ? specialText : activeEditor2.document.lineAt(textLine).text.trim();
-
-        var commentText = seperatorChar + text;
-
-        if (startPos.line - 1 >= 0) {
-          var matches = /\/\/(.*)/g.exec(activeEditor2.document.lineAt(startPos.line - 1).text);
-          if (matches && matches.length > 0) {
-            commentText = seperatorChar + matches[1] + (!onlyCommentLabel ? " - " + text : "");
-            useCommentText = true;
+          if (enableJSX && node.hasOwnProperty("openingElement")) {
+            var jsx: any = (node as ts.JsxElement);
+            specialStart = (jsx.openingElement.attributes).pos;
+            var tagName = "<" + (jsx.openingElement.tagName).text;
+            var attributesText = "";
+            for (var props of (jsx.openingElement.attributes).properties) {
+              var named: any = (props as ts.NamedDeclaration);
+              attributesText += (attributesText === "" ? " " : ", ") + (named.name).text + "=[...]";
+            }
+            specialText = tagName + attributesText + ">";
+            useSpecialText = true;
           }
-        } else {
-          var matches = /\/\/(.*)/g.exec(activeEditor2.document.lineAt(startPos.line).text);
-          if (matches && matches.length > 0) {
-            commentText = seperatorChar + matches[1] + (!onlyCommentLabel ? " - " + text : "");
-            useCommentText = true;
-          }
-        }
 
-        var labelText = onlyCommentLabel ? 
+          var endPos = activeEditor2.document.positionAt(node.end);
+          var startPos =
+            specialStart !== -1 ?
+              activeEditor2.document.positionAt(specialStart) :
+              activeEditor2.document.positionAt(node.pos);
+          var lines = endPos.line - startPos.line;
+
+          if (lines < amountOfLines) {
+            return;
+          }
+
+          let textLine = startPos.line;
+          let text = useSpecialText ? specialText : activeEditor2.document.lineAt(textLine).text.trim();
+
+          var commentText = seperatorChar + text;
+
+          if (startPos.line - 1 >= 0) {
+            var matches = /\/\/(.*)/g.exec(activeEditor2.document.lineAt(startPos.line - 1).text);
+            if (matches && matches.length > 0) {
+              commentText = seperatorChar + matches[1] + (!onlyCommentLabel ? " - " + text : "");
+              useCommentText = true;
+            }
+          } else {
+            var matches = /\/\/(.*)/g.exec(activeEditor2.document.lineAt(startPos.line).text);
+            if (matches && matches.length > 0) {
+              commentText = seperatorChar + matches[1] + (!onlyCommentLabel ? " - " + text : "");
+              useCommentText = true;
+            }
+          }
+
+          var labelText = onlyCommentLabel ?
             (useCommentText ? commentText : "") :
             commentText;
-          
-        let hoverText = "```js\n";
-        let offset = 0;
 
-        if (lines >= showToolTipMin) {
-          for (let item = startPos.line;
-            item < activeEditor2.document.lineCount && item < startPos.line + showToolTipLines && item <= endPos.line;
-            item++
-          ) {
-            let text = activeEditor2.document.lineAt(item).text;
-            if (item === startPos.line) {
-              const reg = /^\s\s+/g;
-              let ma = reg.exec(text);
-              if (ma && ma.length > 0) {
-                offset = ma[0].length;
+          let hoverText = "```js\n";
+          let offset = 0;
+
+          if (lines >= showToolTipMin) {
+            for (let item = startPos.line;
+              item < activeEditor2.document.lineCount && item < startPos.line + showToolTipLines && item <= endPos.line;
+              item++
+            ) {
+              let text = activeEditor2.document.lineAt(item).text;
+              if (item === startPos.line) {
+                const reg = /^\s\s+/g;
+                let ma = reg.exec(text);
+                if (ma && ma.length > 0) {
+                  offset = ma[0].length;
+                }
               }
+              text = text.substring(offset);
+              hoverText += text + "\n";
             }
-            text = text.substring(offset);
-            hoverText += text + "\n";
           }
-        }
 
-        hoverText += "\n```";
+          hoverText += "\n```";
 
-        const decorationEnd = {
-          range: new vscode.Range(endPos, activeEditor2.document.lineAt(activeEditor2.document.positionAt(node.end).line).range.end),
-          renderOptions: {
-            dark: {
-              after: {
-                contentText: labelText,
-                color: darkFontColor,
-                backgroundColor: darkBackgroundColor
+          const decorationEnd = {
+            range: new vscode.Range(endPos, activeEditor2.document.lineAt(activeEditor2.document.positionAt(node.end).line).range.end),
+            renderOptions: {
+              dark: {
+                after: {
+                  contentText: labelText,
+                  color: darkFontColor,
+                  backgroundColor: darkBackgroundColor
+                }
+              },
+              light: {
+                after: {
+                  contentText: labelText,
+                  color: lightFontColor,
+                  backgroundColor: lightBackgroundColor
+                }
               }
             },
-            light: {
-              after: {
-                contentText: labelText,
-                color: lightFontColor,
-                backgroundColor: lightBackgroundColor
-              }
-            }
-          },
-          hoverMessage: showToolTip && lines >= showToolTipMin ? new vscode.MarkdownString(hoverText) : ""
-        };
-        closingLabel.push(decorationEnd);
-      }
+            hoverMessage: showToolTip && lines >= showToolTipMin ? new vscode.MarkdownString(hoverText) : ""
+          };
+          closingLabel.push(decorationEnd);
+        }
 
-      node.forEachChild(nod => recur(nod));
+
+
+        node.forEachChild(nod => recur(nod));
+      }
     }
 
     activeEditor.setDecorations(closingLabelDecorationType, closingLabel);
