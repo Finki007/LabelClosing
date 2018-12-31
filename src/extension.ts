@@ -4,7 +4,7 @@
 import * as vscode from 'vscode';
 import * as ts from 'typescript';
 import { config } from './config';
-import { parse } from './compil';
+import { parse } from './compile';
 
 // import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
